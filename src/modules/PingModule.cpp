@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <Node.h>
 #include <PingModule.h>
 #include <stdlib.h>
+#include <LedWrapper.h>
 
 extern "C"{
 
@@ -55,7 +56,7 @@ void PingModule::ConfigurationLoadedHandler()
 	if(configuration.moduleVersion == 1){/* ... */};
 
 	//Do additional initialization upon loading the config
-
+	
 
 	//Start the Module...
 

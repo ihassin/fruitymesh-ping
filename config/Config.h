@@ -223,7 +223,9 @@ enum moduleID{
 	ENROLLMENT_MODULE_ID=50,
 
 	//Custom modules
-	TEST_MODULE_ID=30000
+	TEST_MODULE_ID=30000,
+	PING_MODULE_ID=30001
+
 };
 
 /*############ Regarding node ids ################*/
