@@ -88,6 +88,7 @@ CPP_SOURCE_FILES += ./src/utility/SimpleQueue.cpp
 CPP_SOURCE_FILES += ./src/utility/Storage.cpp
 CPP_SOURCE_FILES += ./src/utility/Terminal.cpp
 CPP_SOURCE_FILES += ./src/utility/Utility.cpp
+CPP_SOURCE_FILES += ./src/modules/PingModule.cpp
 
 C_SOURCE_FILES += $(EHAL_PATH)/ARM/Nordic/nRF51/src/Vectors_nRF51.c
 C_SOURCE_FILES += $(COMPONENTS)/libraries/timer/app_timer.c
