@@ -158,6 +158,8 @@ CFLAGS += -fno-rtti
 CFLAGS += -fno-use-cxa-atexit
 CFLAGS += -fno-threadsafe-statics
 
+CFLAGS += -DENABLE_LOGGING
+
 LDFLAGS += -mcpu=cortex-m0
 LDFLAGS += -mthumb
 LDFLAGS += -Og

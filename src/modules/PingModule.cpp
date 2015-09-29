@@ -65,7 +65,7 @@ void PingModule::ConfigurationLoadedHandler()
 void PingModule::TimerEventHandler(u16 passedTime, u32 appTimer)
 {
 	//Do stuff on timer...
-
+	logt("PINGMOD", "Timer");
 }
 
 void PingModule::ResetToDefaultConfiguration()
@@ -104,8 +104,8 @@ bool PingModule::TerminalCommandHandler(string commandName, vector<string> comma
 
 			return true;
 		}
-	}
 
+	}
 
 	//Must be called to allow the module to get and set the config
 	return Module::TerminalCommandHandler(commandName, commandArgs);
