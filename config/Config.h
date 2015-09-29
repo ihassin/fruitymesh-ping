@@ -239,7 +239,9 @@ enum moduleID{
 	IO_MODULE_ID=60,
 
 	//Custom modules
-	DEBUG_MODULE_ID=30000
+	TEST_MODULE_ID=30000,
+	PING_MODULE_ID=30001
+
 };
 
 /*############ Regarding node ids ################*/
@@ -249,6 +251,3 @@ enum moduleID{
 #define NODE_ID_GROUP_BASE 20000
 #define NODE_ID_HOPS_BASE 30000
 #define NODE_ID_SHORTEST_SINK 31001
-
-
-
