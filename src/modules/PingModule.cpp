@@ -28,6 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <LedWrapper.h>
 
+#define kTimerInterval 1*1000
+
 extern "C"{
 
 }
@@ -45,6 +47,8 @@ PingModule::PingModule(u16 moduleId, Node* node, ConnectionManager* cm, const ch
 
 	//Start module configuration loading
 	LoadModuleConfiguration();
+	node->currentLedMode = Node::ledMode::LED_MODE_OFF;
+	node->LedBlue->Off();
 	configuration.moduleActive = true;
 }
 
@@ -57,7 +61,7 @@ void PingModule::ConfigurationLoadedHandler()
 	if(configuration.moduleVersion == 1){/* ... */};
 
 	//Do additional initialization upon loading the config
-	configuration.pingInterval = 5*1000;
+	configuration.pingInterval = kTimerInterval;
 	lastPingTimer = 0;
 
 	//Start the Module...
@@ -70,6 +74,8 @@ void PingModule::TimerEventHandler(u16 passedTime, u32 appTimer)
 	{
 		logt("PINGMOD", "Timer tick");
 		lastPingTimer = node->appTimerMs;
+		SendPing(12146);
+//		node->LedBlue->Toggle();
 	}
 }
 
@@ -79,10 +85,29 @@ void PingModule::ResetToDefaultConfiguration()
 	configuration.moduleId = moduleId;
 	configuration.moduleActive = false;
 	configuration.moduleVersion = 1;
-	configuration.pingInterval = 5*1000;
+	configuration.pingInterval = kTimerInterval;
 
 	//Set additional config values...
 	logt("PINGMOD", "Reset");
+}
+
+bool PingModule::SendPing(nodeID targetNodeId)
+{
+	logt("PINGMOD", "Trying to ping node %u", targetNodeId);
+
+        //Send ping packet to that node
+        connPacketModuleAction packet;
+        packet.header.messageType = MESSAGE_TYPE_MODULE_TRIGGER_ACTION;
+        packet.header.sender = node->persistentConfig.nodeId;
+        packet.header.receiver = targetNodeId;
+
+        packet.moduleId = moduleId;
+        packet.actionType = PingModuleTriggerActionMessages::TRIGGER_PING;
+        packet.data[0] = 123;
+
+
+        cm->SendMessageToReceiver(NULL, (u8*)&packet, SIZEOF_CONN_PACKET_MODULE_ACTION + 1, true);
+	return(true);
 }
 
 bool PingModule::TerminalCommandHandler(string commandName, vector<string> commandArgs)
@@ -91,26 +116,10 @@ bool PingModule::TerminalCommandHandler(string commandName, vector<string> comma
 	{
 		//React on commands, return true if handled, false otherwise
 		if(commandName == "pingmod"){
-			//Get the id of the target node
 			nodeID targetNodeId = atoi(commandArgs[0].c_str());
-			logt("PINGMOD", "Trying to ping node %u", targetNodeId);
-
-			//Send ping packet to that node
-			connPacketModuleAction packet;
-			packet.header.messageType = MESSAGE_TYPE_MODULE_TRIGGER_ACTION;
-			packet.header.sender = node->persistentConfig.nodeId;
-			packet.header.receiver = targetNodeId;
-
-			packet.moduleId = moduleId;
-			packet.actionType = PingModuleTriggerActionMessages::TRIGGER_PING;
-			packet.data[0] = 123;
-
-
-			cm->SendMessageToReceiver(NULL, (u8*)&packet, SIZEOF_CONN_PACKET_MODULE_ACTION + 1, true);
-
-			return true;
+			
+			return(SendPing(targetNodeId));
 		}
-
 	}
 
 	//Must be called to allow the module to get and set the config
@@ -146,7 +155,7 @@ void PingModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket
 				outPacket.data[1] = 111;
 
 				cm->SendMessageToReceiver(NULL, (u8*)&outPacket, SIZEOF_CONN_PACKET_MODULE_ACTION + 2, true);
-
+node->LedBlue->Toggle();
 			}
 		}
 	}

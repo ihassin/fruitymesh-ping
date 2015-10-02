@@ -45,6 +45,7 @@ class PingModule: public Module
 		};
 
 		int lastPingTimer;
+		bool SendPing(nodeID targetNodeId);
 
 	public:
 		PingModule(u16 moduleId, Node* node, ConnectionManager* cm, const char* name, u16 storageSlot);
