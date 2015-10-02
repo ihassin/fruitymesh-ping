@@ -45,6 +45,7 @@ PingModule::PingModule(u16 moduleId, Node* node, ConnectionManager* cm, const ch
 
 	//Start module configuration loading
 	LoadModuleConfiguration();
+	configuration.moduleActive = true;
 }
 
 void PingModule::ConfigurationLoadedHandler()
@@ -56,16 +57,20 @@ void PingModule::ConfigurationLoadedHandler()
 	if(configuration.moduleVersion == 1){/* ... */};
 
 	//Do additional initialization upon loading the config
-	
+	configuration.pingInterval = 5*1000;
+	lastPingTimer = 0;
 
 	//Start the Module...
-
+	logt("PINGMOD", "ConfigLoaded");
 }
 
 void PingModule::TimerEventHandler(u16 passedTime, u32 appTimer)
 {
-	//Do stuff on timer...
-	logt("PINGMOD", "Timer");
+	if(configuration.pingInterval != 0 && node->appTimerMs - lastPingTimer > configuration.pingInterval)
+	{
+		logt("PINGMOD", "Timer tick");
+		lastPingTimer = node->appTimerMs;
+	}
 }
 
 void PingModule::ResetToDefaultConfiguration()
@@ -74,9 +79,10 @@ void PingModule::ResetToDefaultConfiguration()
 	configuration.moduleId = moduleId;
 	configuration.moduleActive = false;
 	configuration.moduleVersion = 1;
+	configuration.pingInterval = 5*1000;
 
 	//Set additional config values...
-
+	logt("PINGMOD", "Reset");
 }
 
 bool PingModule::TerminalCommandHandler(string commandName, vector<string> commandArgs)
@@ -160,3 +166,4 @@ void PingModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket
 		}
 	}
 }
+
