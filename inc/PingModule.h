@@ -31,6 +31,7 @@ class PingModule: public Module
 		//Module configuration that is saved persistently (size must be multiple of 4)
 		struct PingModuleConfiguration : ModuleConfiguration{
 			//Insert more persistent config values here
+			int pingInterval;
 		};
 
 		PingModuleConfiguration configuration;
@@ -42,6 +43,8 @@ class PingModule: public Module
 		enum PingModuleActionResponseMessages{
 			PING_RESPONSE=0
 		};
+
+		int lastPingTimer;
 
 	public:
 		PingModule(u16 moduleId, Node* node, ConnectionManager* cm, const char* name, u16 storageSlot);
