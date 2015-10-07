@@ -219,13 +219,11 @@ all: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo "               $(OUTPUT_NAME).hex"
 	@echo "*****************************************************"
 
-	$(JLINK) upload_fruitymesh.jlink
-
 debug : all
 release : all
 
 flash: all
-	$(JLINK) deploy/upload_fruitymesh.jlink
+	$(JLINK) upload_fruitymesh.jlink
 
 # Create build directories
 $(BUILD_DIRECTORIES):
