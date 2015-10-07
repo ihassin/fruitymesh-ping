@@ -28,7 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <LedWrapper.h>
 
-#define kTimerInterval 1*1000
+#define kTimerInterval 5*1000
+#define LED	node->LedRed
 
 extern "C"{
 
@@ -47,9 +48,6 @@ PingModule::PingModule(u16 moduleId, Node* node, ConnectionManager* cm, const ch
 
 	//Start module configuration loading
 	LoadModuleConfiguration();
-	node->currentLedMode = Node::ledMode::LED_MODE_OFF;
-	node->LedBlue->Off();
-	configuration.moduleActive = true;
 }
 
 void PingModule::ConfigurationLoadedHandler()
@@ -64,6 +62,10 @@ void PingModule::ConfigurationLoadedHandler()
 	configuration.pingInterval = kTimerInterval;
 	lastPingTimer = 0;
 
+//        node->currentLedMode = Node::ledMode::LED_MODE_OFF;
+        LED->Off();
+        configuration.moduleActive = true;
+
 	//Start the Module...
 	logt("PINGMOD", "ConfigLoaded");
 }
@@ -74,8 +76,7 @@ void PingModule::TimerEventHandler(u16 passedTime, u32 appTimer)
 	{
 		logt("PINGMOD", "Timer tick");
 		lastPingTimer = node->appTimerMs;
-		SendPing(12146);
-//		node->LedBlue->Toggle();
+		SendPing(DEST_BOARD_ID); 
 	}
 }
 
@@ -93,6 +94,7 @@ void PingModule::ResetToDefaultConfiguration()
 
 bool PingModule::SendPing(nodeID targetNodeId)
 {
+	static long ping_count = 0;
 	logt("PINGMOD", "Trying to ping node %u", targetNodeId);
 
         //Send ping packet to that node
@@ -101,10 +103,10 @@ bool PingModule::SendPing(nodeID targetNodeId)
         packet.header.sender = node->persistentConfig.nodeId;
         packet.header.receiver = targetNodeId;
 
+	//packet.header.remoteReceiver = 13314;
         packet.moduleId = moduleId;
         packet.actionType = PingModuleTriggerActionMessages::TRIGGER_PING;
-        packet.data[0] = 123;
-
+       	packet.data[0] = ping_count++;
 
         cm->SendMessageToReceiver(NULL, (u8*)&packet, SIZEOF_CONN_PACKET_MODULE_ACTION + 1, true);
 	return(true);
@@ -152,10 +154,12 @@ void PingModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket
 				outPacket.moduleId = moduleId;
 				outPacket.actionType = PingModuleActionResponseMessages::PING_RESPONSE;
 				outPacket.data[0] = packet->data[0];
-				outPacket.data[1] = 111;
+				outPacket.data[1] = packet->data[0];
 
 				cm->SendMessageToReceiver(NULL, (u8*)&outPacket, SIZEOF_CONN_PACKET_MODULE_ACTION + 2, true);
-node->LedBlue->Toggle();
+				if(packet->data[0] % 2) {
+					LED->Toggle();
+				}
 			}
 		}
 	}

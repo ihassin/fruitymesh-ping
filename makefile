@@ -24,7 +24,6 @@ else
   JLINK		:= jlink
 endif
 
-
 #------------------------------------------------------------------------------
 # Proceed cautiously beyond this point.  Little should change.
 #------------------------------------------------------------------------------
@@ -219,6 +218,8 @@ all: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo "               $(OUTPUT_NAME).elf"
 	@echo "               $(OUTPUT_NAME).hex"
 	@echo "*****************************************************"
+
+	$(JLINK) upload_fruitymesh.jlink
 
 debug : all
 release : all
