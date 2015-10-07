@@ -17,6 +17,7 @@ TEMPLATE_PATH := $(COMPONENTS)/toolchain/gcc
 EHAL_PATH     := $(HOME)/nrf/sdk/ehal_latest
 LINKER_SCRIPT := ./linker/gcc_nrf51_s130_32kb.ld
 OUTPUT_NAME   := FruityMesh
+JLINK	      := ../../tools/jlink
 
 #------------------------------------------------------------------------------
 # Proceed cautiously beyond this point.  Little should change.
@@ -159,6 +160,7 @@ CFLAGS += -fno-use-cxa-atexit
 CFLAGS += -fno-threadsafe-statics
 
 CFLAGS += -DENABLE_LOGGING
+CFLAGS += -DDEST_BOARD_ID=0
 
 LDFLAGS += -mcpu=cortex-m0
 LDFLAGS += -mthumb
@@ -211,6 +213,8 @@ all: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo "               $(OUTPUT_NAME).elf"
 	@echo "               $(OUTPUT_NAME).hex"
 	@echo "*****************************************************"
+
+	$(JLINK) upload_fruitymesh.jlink
 
 debug : all
 
