@@ -60,7 +60,8 @@ void PingModule::ConfigurationLoadedHandler()
 
 	//Do additional initialization upon loading the config
 	configuration.pingInterval = kTimerInterval;
-	lastPingTimer = 0;
+	configuration.lastPingTimer = 0;
+	configuration.pingCount = 0;
 
 //        node->currentLedMode = Node::ledMode::LED_MODE_OFF;
         LED->Off();
@@ -72,10 +73,10 @@ void PingModule::ConfigurationLoadedHandler()
 
 void PingModule::TimerEventHandler(u16 passedTime, u32 appTimer)
 {
-	if(configuration.pingInterval != 0 && node->appTimerMs - lastPingTimer > configuration.pingInterval)
+	if(configuration.pingInterval != 0 && node->appTimerMs - configuration.lastPingTimer > configuration.pingInterval)
 	{
 		logt("PINGMOD", "Timer tick");
-		lastPingTimer = node->appTimerMs;
+		configuration.lastPingTimer = node->appTimerMs;
 		SendPing(DEST_BOARD_ID); 
 	}
 }
@@ -87,6 +88,8 @@ void PingModule::ResetToDefaultConfiguration()
 	configuration.moduleActive = false;
 	configuration.moduleVersion = 1;
 	configuration.pingInterval = kTimerInterval;
+	configuration.pingCount = 0;
+	configuration.lastPingTimer = 0;
 
 	//Set additional config values...
 	logt("PINGMOD", "Reset");
@@ -94,8 +97,7 @@ void PingModule::ResetToDefaultConfiguration()
 
 bool PingModule::SendPing(nodeID targetNodeId)
 {
-	static long ping_count = 0;
-	logt("PINGMOD", "Trying to ping node %u", targetNodeId);
+	logt("PINGMOD", "Trying to ping node %u from %u", targetNodeId, node->persistentConfig.nodeId);
 
         //Send ping packet to that node
         connPacketModuleAction packet;
@@ -103,10 +105,9 @@ bool PingModule::SendPing(nodeID targetNodeId)
         packet.header.sender = node->persistentConfig.nodeId;
         packet.header.receiver = targetNodeId;
 
-	//packet.header.remoteReceiver = 13314;
         packet.moduleId = moduleId;
         packet.actionType = PingModuleTriggerActionMessages::TRIGGER_PING;
-       	packet.data[0] = ping_count++;
+       	packet.data[0] = configuration.pingCount++;
 
         cm->SendMessageToReceiver(NULL, (u8*)&packet, SIZEOF_CONN_PACKET_MODULE_ACTION + 1, true);
 	return(true);

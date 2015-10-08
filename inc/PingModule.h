@@ -32,6 +32,8 @@ class PingModule: public Module
 		struct PingModuleConfiguration : ModuleConfiguration{
 			//Insert more persistent config values here
 			int pingInterval;
+			int lastPingTimer;
+			int pingCount;
 		};
 
 		PingModuleConfiguration configuration;
@@ -44,7 +46,6 @@ class PingModule: public Module
 			PING_RESPONSE=0
 		};
 
-		int lastPingTimer;
 		bool SendPing(nodeID targetNodeId);
 
 	public:
