@@ -228,14 +228,12 @@ $(BUILD_DIRECTORIES):
 # Create objects from CPP SRC files
 $(OBJECT_DIRECTORY)/%.o: %.cpp
 	@echo Compiling file: $(notdir $<)
-	$(NO_ECHO)$(CPP) -std=c++11 $(CFLAGS) $(INC_PATHS) \
-	-c $< -o $@ > $(OUTPUT_BINARY_DIRECTORY)/$*.lst
+	$(NO_ECHO)$(CPP) -std=c++11 $(CFLAGS) $(INC_PATHS) -c $< -o $@ > $(OUTPUT_BINARY_DIRECTORY)/$*.lst
 
 # Create objects from C SRC files
 $(OBJECT_DIRECTORY)/%.o: %.c
 	@echo Compiling file: $(notdir $<)
-	$(NO_ECHO)$(CC) -std=gnu99 $(CFLAGS) $(INC_PATHS) \
-	-c $< -o $@ > $(OUTPUT_BINARY_DIRECTORY)/$*.lst
+	$(NO_ECHO)$(CC) -std=gnu99 $(CFLAGS) $(INC_PATHS) -c $< -o $@ > $(OUTPUT_BINARY_DIRECTORY)/$*.lst
 
 # Link
 $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_NAME).elf: $(BUILD_DIRECTORIES) $(OBJECTS)
