@@ -17,7 +17,7 @@ TEMPLATE_PATH := $(COMPONENTS)/toolchain/gcc
 EHAL_PATH     := $(HOME)/nrf/sdk/ehal_latest
 LINKER_SCRIPT := ./linker/gcc_nrf51_s130_32kb.ld
 OUTPUT_NAME   := FruityMesh
-JLINK	      := ../../tools/jlink
+JLINK	      := $(HOME)/nrf/tools/jlink
 
 #------------------------------------------------------------------------------
 # Proceed cautiously beyond this point.  Little should change.
