@@ -3,8 +3,6 @@
 #
 # Selectable build options 
 #------------------------------------------------------------------------------
-
-
 TARGET_BOARD         ?= BOARD_PCA10031
 
 #------------------------------------------------------------------------------
@@ -56,7 +54,6 @@ SIZE     := "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-size"
 MK       := mkdir
 RM       := rm -rf
 CP       := cp
-
 
 # function for removing duplicates in a list
 remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-out $(firstword $1),$1))))
