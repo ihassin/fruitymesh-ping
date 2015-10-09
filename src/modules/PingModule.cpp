@@ -28,11 +28,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <LedWrapper.h>
 
-#define kTimerInterval 5*1000
-#define LED	node->LedRed
+#define kTimerInterval 	5*1000
+#define kPinNumber	18
 
 extern "C"{
-
+#include "nrf_gpio.h"
 }
 
 PingModule::PingModule(u16 moduleId, Node* node, ConnectionManager* cm, const char* name, u16 storageSlot)
@@ -63,10 +63,9 @@ void PingModule::ConfigurationLoadedHandler()
 	configuration.lastPingTimer = 0;
 	configuration.pingCount = 0;
 
-//        node->currentLedMode = Node::ledMode::LED_MODE_OFF;
-        LED->Off();
         configuration.moduleActive = true;
 
+	nrf_gpio_cfg_output(kPinNumber);
 	//Start the Module...
 	logt("PINGMOD", "ConfigLoaded");
 }
@@ -109,6 +108,8 @@ bool PingModule::SendPing(nodeID targetNodeId)
         packet.moduleId = moduleId;
         packet.actionType = PingModuleTriggerActionMessages::TRIGGER_PING;
        	packet.data[0] = configuration.pingCount++;
+
+	nrf_gpio_pin_toggle(kPinNumber);
 
         cm->SendMessageToReceiver(NULL, (u8*)&packet, SIZEOF_CONN_PACKET_MODULE_ACTION + 1, true);
 	return(true);
@@ -161,7 +162,7 @@ void PingModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket
 
                         cm->SendMessageToReceiver(NULL, (u8*)&outPacket, SIZEOF_CONN_PACKET_MODULE_ACTION + 2, true);
                         if(packet->data[0] % 2) {
-                            LED->Toggle();
+				nrf_gpio_pin_toggle(kPinNumber);
                         }
 
                         {
