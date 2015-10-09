@@ -79,12 +79,6 @@ void PingModule::TimerEventHandler(u16 passedTime, u32 appTimer)
 
 		SendPing(DEST_BOARD_ID); 
 
-        int a = cm->connections[0]->GetAverageRSSI();
-        int b = cm->connections[1]->GetAverageRSSI();
-        int c = cm->connections[2]->GetAverageRSSI();
-        int d = cm->connections[3]->GetAverageRSSI();
-
-        logt("PINGMOD", "RSSI: [%d] [%d] [%d] [%d]", a, b, c, d);
 	}
 }
 
@@ -168,6 +162,15 @@ void PingModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket
                         cm->SendMessageToReceiver(NULL, (u8*)&outPacket, SIZEOF_CONN_PACKET_MODULE_ACTION + 2, true);
                         if(packet->data[0] % 2) {
                             LED->Toggle();
+                        }
+
+                        {
+                        int a = cm->connections[0]->GetAverageRSSI();
+                        int b = cm->connections[0]->GetAverageRSSI();
+                        int c = cm->connections[0]->GetAverageRSSI();
+                        int d = cm->connections[0]->GetAverageRSSI();
+
+                        logt("PINGMOD", "RSSI: [%d] [%d] [%d] [%d]", a, b, c, d);
                         }
                         break;
 
