@@ -166,9 +166,9 @@ void PingModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket
 
                         {
                         int a = cm->connections[0]->GetAverageRSSI();
-                        int b = cm->connections[0]->GetAverageRSSI();
-                        int c = cm->connections[0]->GetAverageRSSI();
-                        int d = cm->connections[0]->GetAverageRSSI();
+                        int b = cm->connections[1]->GetAverageRSSI();
+                        int c = cm->connections[2]->GetAverageRSSI();
+                        int d = cm->connections[3]->GetAverageRSSI();
 
                         logt("PINGMOD", "RSSI: [%d] [%d] [%d] [%d]", a, b, c, d);
                         }
