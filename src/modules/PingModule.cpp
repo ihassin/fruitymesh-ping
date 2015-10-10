@@ -28,8 +28,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <LedWrapper.h>
 
-#define kTimerInterval 	5*1000
-#define kPinNumber	18
+#define kTimerInterval 		1*1000
+#define kPinNumberRed		18
+#define kPinNumberGreen   	19
+#define kPinNumberBlue   	20
 
 extern "C"{
 #include "nrf_gpio.h"
@@ -65,7 +67,10 @@ void PingModule::ConfigurationLoadedHandler()
 
         configuration.moduleActive = true;
 
-	nrf_gpio_cfg_output(kPinNumber);
+	nrf_gpio_cfg_output(kPinNumberRed);
+	nrf_gpio_cfg_output(kPinNumberGreen);
+	nrf_gpio_cfg_output(kPinNumberBlue);
+
 	//Start the Module...
 	logt("PINGMOD", "ConfigLoaded");
 }
@@ -108,8 +113,6 @@ bool PingModule::SendPing(nodeID targetNodeId)
         packet.moduleId = moduleId;
         packet.actionType = PingModuleTriggerActionMessages::TRIGGER_PING;
        	packet.data[0] = configuration.pingCount++;
-
-	nrf_gpio_pin_toggle(kPinNumber);
 
         cm->SendMessageToReceiver(NULL, (u8*)&packet, SIZEOF_CONN_PACKET_MODULE_ACTION + 1, true);
 	return(true);
@@ -161,17 +164,36 @@ void PingModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket
                         outPacket.data[1] = packet->data[0];
 
                         cm->SendMessageToReceiver(NULL, (u8*)&outPacket, SIZEOF_CONN_PACKET_MODULE_ACTION + 2, true);
-                        if(packet->data[0] % 2) {
-				nrf_gpio_pin_toggle(kPinNumber);
-                        }
 
                         {
-                        int a = cm->connections[0]->GetAverageRSSI();
-                        int b = cm->connections[1]->GetAverageRSSI();
-                        int c = cm->connections[2]->GetAverageRSSI();
-                        int d = cm->connections[3]->GetAverageRSSI();
+	                        int a = cm->connections[0]->GetAverageRSSI();
+	                        int b = cm->connections[1]->GetAverageRSSI();
+	                        int c = cm->connections[2]->GetAverageRSSI();
+	                        int d = cm->connections[3]->GetAverageRSSI();
+				int sum = -(a+b+c+d);
 
-                        logt("PINGMOD", "RSSI: [%d] [%d] [%d] [%d]", a, b, c, d);
+                                if(sum == 0)
+                                {
+                                        nrf_gpio_pin_write(kPinNumberRed, 0);
+                                        nrf_gpio_pin_write(kPinNumberGreen, 0);
+                                        nrf_gpio_pin_write(kPinNumberBlue, 0);
+                                } else
+				if(sum >= 80) {
+                                        nrf_gpio_pin_write(kPinNumberRed, 255);
+                                        nrf_gpio_pin_write(kPinNumberGreen, 0);
+                                        nrf_gpio_pin_write(kPinNumberBlue, 0);
+                                } else
+				if (sum >= 70) {
+	                                nrf_gpio_pin_write(kPinNumberRed, 153);
+        	                        nrf_gpio_pin_write(kPinNumberGreen, 76);
+                	                nrf_gpio_pin_write(kPinNumberBlue, 0);
+				} else {					
+					nrf_gpio_pin_write(kPinNumberRed, 0);
+                                        nrf_gpio_pin_write(kPinNumberGreen, 255);
+                                        nrf_gpio_pin_write(kPinNumberBlue, 0);
+				}
+			
+                        	logt("PINGMOD", "RSSI: [%d] [%d] [%d] [%d] Sum: %d", a, b, c, d, sum);
                         }
                         break;
 
