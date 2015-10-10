@@ -102,7 +102,7 @@ void PingModule::ResetToDefaultConfiguration()
 
 bool PingModule::SendPing(nodeID targetNodeId)
 {
-	logt("PINGMOD", "Trying to ping node %u from %u", targetNodeId, node->persistentConfig.nodeId);
+	// logt("PINGMOD", "Trying to ping node %u from %u", targetNodeId, node->persistentConfig.nodeId);
 
         //Send ping packet to that node
         connPacketModuleAction packet;
@@ -150,7 +150,7 @@ void PingModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket
                 switch(packet->actionType)
                 {
                     case PingModuleTriggerActionMessages::TRIGGER_PING:
-                        logt("PINGMOD", "Ping request received from %u with data: %d", packetHeader->sender, packet->data[0]);
+                        // logt("PINGMOD", "Ping request received from %u with data: %d", packetHeader->sender, packet->data[0]);
 
                         //Send PING_RESPONSE
                         connPacketModuleAction outPacket;
@@ -193,7 +193,7 @@ void PingModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket
                                         nrf_gpio_pin_write(kPinNumberBlue, 0);
 				}
 			
-                        	logt("PINGMOD", "RSSI: [%d] [%d] [%d] [%d] Sum: %d", a, b, c, d, sum);
+                        	//logt("PINGMOD", "RSSI: [%d] [%d] [%d] [%d] Sum: %d", a, b, c, d, sum);
                         }
                         break;
 
