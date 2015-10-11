@@ -20,6 +20,8 @@ The LED is connected to GPIOs 18, 19 and 20. PingModule was added to the project
 
 Using simple arithmetic, it changes the LED's colours based on the node's signal strength with its neighbours.
 
+![ezgif com-optimize](https://cloud.githubusercontent.com/assets/19006/10417277/df09c7a4-7003-11e5-94cc-f0ff5cafa608.gif)
+
 ##Modified makefile
 
 The [makefile](https://github.com/ihassin/fruitymesh-ping/blob/master/makefile) is slightly different than the [one contributed](https://github.com/tkadom/fruitymesh) by my colleague [Tim Kadom](https://www.linkedin.com/in/tkadom) in that it adds the Ping module and a goal to flash the device.
