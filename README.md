@@ -1,4 +1,4 @@
-![fruitymesh](https://cloud.githubusercontent.com/assets/5893428/9224084/1687644e-4100-11e5-93d3-02df8951ee91.png)
+![img_3369 1](https://cloud.githubusercontent.com/assets/19006/10417242/56eb1770-7002-11e5-9081-f511a432c876.png)
 
 #FruityMesh
 
