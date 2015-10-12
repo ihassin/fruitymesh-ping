@@ -45,7 +45,7 @@ You are welcome to [use my VM setup](https://github.com/ihassin/fruitymesh-ubunt
 
 * [Tim's repo](https://github.com/tkadom/fruitymesh)
 * [Rosalie's repo](https://github.com/rosatolen/fruitymesh)
-
+* [Andy's repo](https://github.com/microcosm/fruitygate-nodejs) - Showcasing a gateway between meshes.
 
 #Contributing
 
