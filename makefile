@@ -222,7 +222,7 @@ debug : all
 release : all
 
 flash: all
-	$(JLINK) upload_fruitymesh.jlink
+	$(JLINK) deploy/upload_fruitymesh.jlink
 
 # Create build directories
 $(BUILD_DIRECTORIES):
