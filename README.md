@@ -55,3 +55,12 @@ You are welcome to [use my VM setup](https://github.com/ihassin/fruitymesh-ubunt
 * Push to the branch (git push origin my-new-feature)
 * Create a new Pull Request
 
+# Code of conduct
+
+We adhere to the code of conduct as described [here](https://github.com/ihassin/fruitymesh-ping/blob/master/CODE_OF_CONDUCT.md).
+
+# License
+
+This repo adheres to the license as it is stated [here](https://github.com/mwaylabs/fruitymesh/blob/master/LICENCE.txt).
+
+
