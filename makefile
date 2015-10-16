@@ -209,6 +209,7 @@ all: $(BUILD_DIRECTORIES) $(OBJECTS)
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
 
 	@echo "*****************************************************"
+	@echo "O/S:           $(OS)"
 	@echo "build project: $(OUTPUT_NAME)"
 	@echo "build type:    $(BUILD_TYPE)"
 	@echo "build with:    $(TOOLCHAIN_BASE)"
