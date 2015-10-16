@@ -15,7 +15,7 @@ TEMPLATE_PATH := $(COMPONENTS)/toolchain/gcc
 EHAL_PATH     := $(HOME)/nrf/sdk/ehal_latest
 LINKER_SCRIPT := ./linker/gcc_nrf51_s130_32kb.ld
 OUTPUT_NAME   := FruityMesh
-JLINK	      := $(HOME)/nrf/tools/jlink
+JLINK	      := jlinkexe
 
 #------------------------------------------------------------------------------
 # Proceed cautiously beyond this point.  Little should change.
@@ -145,8 +145,8 @@ CFLAGS += -fno-move-loop-invariants
 CFLAGS += -Wextra
 CFLAGS += -g3
 CFLAGS += -DBLE_STACK_SUPPORT_REQD
-CFLAGS += -DDEBUG
-CFLAGS += -DBOARD_PCA10031
+CFLAGS += $(DEBUG_FLAGS)
+CFLAGS += -D$(TARGET_BOARD)
 CFLAGS += -DNRF51
 CFLAGS += -D__need___va_list
 CFLAGS += -w
@@ -215,7 +215,7 @@ debug : all
 release : all
 
 flash: all
-	$(JLINK) upload_fruitymesh.jlink
+	$(JLINK) deploy/upload_fruitymesh.jlink
 
 # Create build directories
 $(BUILD_DIRECTORIES):
