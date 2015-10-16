@@ -15,7 +15,12 @@ TEMPLATE_PATH := $(COMPONENTS)/toolchain/gcc
 EHAL_PATH     := $(HOME)/nrf/sdk/ehal_latest
 LINKER_SCRIPT := ./linker/gcc_nrf51_s130_32kb.ld
 OUTPUT_NAME   := FruityMesh
-JLINK	      := jlinkexe
+
+ifeq ($(OS),Darwin)
+  JLINK         := jlinkexe
+else
+  JLINK		:= jlink
+endif
 
 #------------------------------------------------------------------------------
 # Proceed cautiously beyond this point.  Little should change.
@@ -202,6 +207,7 @@ all: $(BUILD_DIRECTORIES) $(OBJECTS)
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
 
 	@echo "*****************************************************"
+	@echo "O/S:           $(OS)"
 	@echo "build project: $(OUTPUT_NAME)"
 	@echo "build type:    $(BUILD_TYPE)"
 	@echo "build with:    $(TOOLCHAIN_BASE)"
