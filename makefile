@@ -16,8 +16,9 @@ EHAL_PATH     := $(HOME)/nrf/sdk/ehal_latest
 LINKER_SCRIPT := ./linker/gcc_nrf51_s130_32kb.ld
 OUTPUT_NAME   := FruityMesh
 
+OS := $(shell uname -s)
 ifeq ($(OS),Darwin)
-  JLINK         := jlinkexe
+  JLINK 	:= jlinkexe
 else
   JLINK		:= jlink
 endif
