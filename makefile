@@ -3,17 +3,25 @@
 #
 # Selectable build options 
 #------------------------------------------------------------------------------
-TARGET_BOARD         ?= BOARD_PCA10031
-
+TARGET_BOARD    ?= BOARD_PCA10031
+#TARGET_BOARD	?= BOARD_PCA10040
 #------------------------------------------------------------------------------
 # Define relative paths to SDK components
 #------------------------------------------------------------------------------
+TARGET_CPU    := cortex-m0
+#TARGET_CPU    := cortex-m4
 
-SDK_BASE      := $(HOME)/nrf/sdk/nrf_sdk_9_0
+SOFTDEVICE_VERSION := s130
+#SOFTDEVICE_VERSION := s132
+
+CHIP_VERSION  := 51
+#CHIP_VERSION  := 52
+
+SDK_BASE      := $(HOME)/nrf/sdk/nrf$(CHIP_VERSION)_sdk_latest
 COMPONENTS    := $(SDK_BASE)/components
 TEMPLATE_PATH := $(COMPONENTS)/toolchain/gcc
 EHAL_PATH     := $(HOME)/nrf/sdk/ehal_latest
-LINKER_SCRIPT := ./linker/gcc_nrf51_s130_32kb.ld
+LINKER_SCRIPT := ./linker/gcc_nrf$(CHIP_VERSION)_$(SOFTDEVICE_VERSION)_32kb.ld
 OUTPUT_NAME   := FruityMesh
 
 OS := $(shell uname -s)
@@ -95,12 +103,16 @@ CPP_SOURCE_FILES += ./src/utility/Terminal.cpp
 CPP_SOURCE_FILES += ./src/utility/Utility.cpp
 CPP_SOURCE_FILES += ./src/modules/PingModule.cpp
 
-C_SOURCE_FILES += $(EHAL_PATH)/ARM/Nordic/nRF51/src/Vectors_nRF51.c
+C_SOURCE_FILES += $(EHAL_PATH)/ARM/Nordic/nRF$(CHIP_VERSION)/src/Vectors_nRF$(CHIP_VERSION).c
 C_SOURCE_FILES += $(COMPONENTS)/libraries/timer/app_timer.c
 C_SOURCE_FILES += $(COMPONENTS)/ble/ble_radio_notification/ble_radio_notification.c
 C_SOURCE_FILES += ./src/nrf/simple_uart.c
 C_SOURCE_FILES += $(COMPONENTS)/drivers_nrf/hal/nrf_delay.c
 C_SOURCE_FILES += $(COMPONENTS)/drivers_nrf/pstorage/pstorage.c
+
+# for NFR52:
+#C_SOURCE_FILES += $(COMPONENTS)/drivers_nrf/delay/nrf_delay.c
+
 C_SOURCE_FILES += $(COMPONENTS)/softdevice/common/softdevice_handler/softdevice_handler.c
 
 # includes common to all targets
@@ -112,7 +124,6 @@ INC_PATHS += -I./config
 
 #arm GCC
 
-#nordic nrf51
 INC_PATHS += -I$(COMPONENTS)/ble/ble_radio_notification
 INC_PATHS += -I$(COMPONENTS)/ble/ble_services/ble_dfu
 INC_PATHS += -I$(COMPONENTS)/ble/common
@@ -120,12 +131,13 @@ INC_PATHS += -I$(COMPONENTS)/device
 INC_PATHS += -I$(COMPONENTS)/libraries/timer
 INC_PATHS += -I$(COMPONENTS)/libraries/util
 INC_PATHS += -I$(COMPONENTS)/softdevice/common/softdevice_handler
-INC_PATHS += -I$(COMPONENTS)/softdevice/s130/headers
+INC_PATHS += -I$(COMPONENTS)/softdevice/$(SOFTDEVICE_VERSION)/headers
 INC_PATHS += -I$(COMPONENTS)/toolchain
 INC_PATHS += -I$(COMPONENTS)/toolchain/arm
 INC_PATHS += -I$(COMPONENTS)/toolchain/gcc
 INC_PATHS += -I$(COMPONENTS)/drivers_nrf/pstorage
 INC_PATHS += -I$(COMPONENTS)/drivers_nrf/hal
+INC_PATHS += -I$(COMPONENTS)/drivers_nrf/delay
 
 OBJECT_DIRECTORY = _build
 LISTING_DIRECTORY = $(OBJECT_DIRECTORY)
@@ -140,7 +152,7 @@ else
   DEBUG_FLAGS += -D NDEBUG -O3
 endif
 
-CFLAGS += -mcpu=cortex-m0
+CFLAGS += -mcpu=$(TARGET_CPU)
 CFLAGS += -mthumb 
 CFLAGS += -Og
 CFLAGS += -fmessage-length=0
@@ -154,7 +166,7 @@ CFLAGS += -g3
 CFLAGS += -DBLE_STACK_SUPPORT_REQD
 CFLAGS += $(DEBUG_FLAGS)
 CFLAGS += -D$(TARGET_BOARD)
-CFLAGS += -DNRF51
+CFLAGS += -DNRF$(CHIP_VERSION)
 CFLAGS += -D__need___va_list
 CFLAGS += -w
 CFLAGS += -fabi-version=0
@@ -166,7 +178,7 @@ CFLAGS += -fno-threadsafe-statics
 CFLAGS += -DENABLE_LOGGING
 CFLAGS += -DDEST_BOARD_ID=0
 
-LDFLAGS += -mcpu=cortex-m0
+LDFLAGS += -mcpu=$(TARGET_CPU)
 LDFLAGS += -mthumb
 LDFLAGS += -Og
 LDFLAGS += -fmessage-length=0
@@ -183,7 +195,7 @@ LDFLAGS += -Wl,-Map,"_build/FruityMesh.map"
 LDFLAGS += --specs=nano.specs
 
 LIBS += -L$(EHAL_PATH)/ARM/src
-LIBS += -L$(EHAL_PATH)/ARM/Nordic/nRF51/CMSIS/Debug
+LIBS += -L$(EHAL_PATH)/ARM/Nordic/nRF$(CHIP_VERSION)/CMSIS/Debug
 LIBS += -lCMSIS
 
 CPP_SOURCE_FILE_NAMES = $(notdir $(CPP_SOURCE_FILES))
