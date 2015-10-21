@@ -40,6 +40,7 @@ The highlights of the changes are:
 #Up and running
 
 You are welcome to [use my VM setup](https://github.com/ihassin/fruitymesh-ubuntu-vm) to quickly bring up a complete NRF51/FruityMesh development up and running to experiment with this exciting platform.
+If you are on a Mac, and want to develop directly from it, skip the VM building and try [my Ansible set up for Mac OS X here](https://github.com/ihassin/fruitymesh-mac-osx).
 
 #Other efforts
 
