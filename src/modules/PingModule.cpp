@@ -104,17 +104,17 @@ bool PingModule::SendPing(nodeID targetNodeId)
 {
 	// logt("PINGMOD", "Trying to ping node %u from %u", targetNodeId, node->persistentConfig.nodeId);
 
-        //Send ping packet to that node
-        connPacketModule packet;
-        packet.header.messageType = MESSAGE_TYPE_MODULE_TRIGGER_ACTION;
-        packet.header.sender = node->persistentConfig.nodeId;
-        packet.header.receiver = targetNodeId;
+    //Send ping packet to that node
+    connPacketModule packet;
+    packet.header.messageType = MESSAGE_TYPE_MODULE_TRIGGER_ACTION;
+    packet.header.sender = node->persistentConfig.nodeId;
+    packet.header.receiver = targetNodeId;
 
-        packet.moduleId = moduleId;
-        packet.actionType = PingModuleTriggerActionMessages::TRIGGER_PING;
-       	packet.data[0] = configuration.pingCount++;
+    packet.moduleId = moduleId;
+    packet.actionType = PingModuleTriggerActionMessages::TRIGGER_PING;
+   	packet.data[0] = configuration.pingCount++;
 
-        cm->SendMessageToReceiver(NULL, (u8*)&packet, SIZEOF_CONN_PACKET_MODULE + 1, true);
+    cm->SendMessageToReceiver(NULL, (u8*)&packet, SIZEOF_CONN_PACKET_MODULE + 1, true);
 	return(true);
 }
 
@@ -170,28 +170,28 @@ void PingModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket
 	                        int b = cm->connections[1]->GetAverageRSSI();
 	                        int c = cm->connections[2]->GetAverageRSSI();
 	                        int d = cm->connections[3]->GetAverageRSSI();
-				int sum = -(a+b+c+d);
+            				int sum = -(a+b+c+d);
 
-                                if(sum == 0)
-                                {
-                                        nrf_gpio_pin_write(kPinNumberRed, 0);
-                                        nrf_gpio_pin_write(kPinNumberGreen, 0);
-                                        nrf_gpio_pin_write(kPinNumberBlue, 0);
-                                } else
-				if(sum >= 80) {
-                                        nrf_gpio_pin_write(kPinNumberRed, 255);
-                                        nrf_gpio_pin_write(kPinNumberGreen, 0);
-                                        nrf_gpio_pin_write(kPinNumberBlue, 0);
-                                } else
-				if (sum >= 70) {
-	                                nrf_gpio_pin_write(kPinNumberRed, 153);
-        	                        nrf_gpio_pin_write(kPinNumberGreen, 76);
-                	                nrf_gpio_pin_write(kPinNumberBlue, 0);
-				} else {					
-					nrf_gpio_pin_write(kPinNumberRed, 0);
-                                        nrf_gpio_pin_write(kPinNumberGreen, 255);
-                                        nrf_gpio_pin_write(kPinNumberBlue, 0);
-				}
+                            if(sum == 0)
+                            {
+                                nrf_gpio_pin_write(kPinNumberRed, 0);
+                                nrf_gpio_pin_write(kPinNumberGreen, 0);
+                                nrf_gpio_pin_write(kPinNumberBlue, 0);
+                            } else
+                            if(sum >= 80) {
+                                nrf_gpio_pin_write(kPinNumberRed, 255);
+                                nrf_gpio_pin_write(kPinNumberGreen, 0);
+                                nrf_gpio_pin_write(kPinNumberBlue, 0);
+                            } else
+                            if (sum >= 70) {
+                                nrf_gpio_pin_write(kPinNumberRed, 153);
+                                nrf_gpio_pin_write(kPinNumberGreen, 76);
+            	                nrf_gpio_pin_write(kPinNumberBlue, 0);
+            				} else {					
+            					nrf_gpio_pin_write(kPinNumberRed, 0);
+                                nrf_gpio_pin_write(kPinNumberGreen, 255);
+                                nrf_gpio_pin_write(kPinNumberBlue, 0);
+            				}
 			
                         	//logt("PINGMOD", "RSSI: [%d] [%d] [%d] [%d] Sum: %d", a, b, c, d, sum);
                         }
