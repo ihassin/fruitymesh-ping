@@ -1,8 +1,7 @@
 /Debug/
 /Release/
-.idea/
+_build/
 /doc/
 /logs/
 /Debug52/
 /deploy/current.txt
-_build/
