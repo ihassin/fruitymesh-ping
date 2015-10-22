@@ -26,15 +26,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <Node.h>
 #include <PingModule.h>
 #include <stdlib.h>
-#include <LedWrapper.h>
-
-#define kTimerInterval 		1*1000
-#define kPinNumberRed		18
-#define kPinNumberGreen   	19
-#define kPinNumberBlue   	20
 
 extern "C"{
-#include "nrf_gpio.h"
+
 }
 
 PingModule::PingModule(u16 moduleId, Node* node, ConnectionManager* cm, const char* name, u16 storageSlot)
@@ -61,29 +55,16 @@ void PingModule::ConfigurationLoadedHandler()
 	if(configuration.moduleVersion == 1){/* ... */};
 
 	//Do additional initialization upon loading the config
-	configuration.pingInterval = kTimerInterval;
-	configuration.lastPingTimer = 0;
-	configuration.pingCount = 0;
 
-        configuration.moduleActive = true;
-
-	nrf_gpio_cfg_output(kPinNumberRed);
-	nrf_gpio_cfg_output(kPinNumberGreen);
-	nrf_gpio_cfg_output(kPinNumberBlue);
 
 	//Start the Module...
-	logt("PINGMOD", "ConfigLoaded");
+
 }
 
 void PingModule::TimerEventHandler(u16 passedTime, u32 appTimer)
 {
-	if(configuration.pingInterval != 0 && node->appTimerMs - configuration.lastPingTimer > configuration.pingInterval)
-	{
-		configuration.lastPingTimer = node->appTimerMs;
+	//Do stuff on timer...
 
-		SendPing(DEST_BOARD_ID); 
-
-	}
 }
 
 void PingModule::ResetToDefaultConfiguration()
@@ -92,30 +73,9 @@ void PingModule::ResetToDefaultConfiguration()
 	configuration.moduleId = moduleId;
 	configuration.moduleActive = false;
 	configuration.moduleVersion = 1;
-	configuration.pingInterval = kTimerInterval;
-	configuration.pingCount = 0;
-	configuration.lastPingTimer = 0;
 
 	//Set additional config values...
-	logt("PINGMOD", "Reset");
-}
 
-bool PingModule::SendPing(nodeID targetNodeId)
-{
-	// logt("PINGMOD", "Trying to ping node %u from %u", targetNodeId, node->persistentConfig.nodeId);
-
-        //Send ping packet to that node
-        connPacketModule packet;
-        packet.header.messageType = MESSAGE_TYPE_MODULE_TRIGGER_ACTION;
-        packet.header.sender = node->persistentConfig.nodeId;
-        packet.header.receiver = targetNodeId;
-
-        packet.moduleId = moduleId;
-        packet.actionType = PingModuleTriggerActionMessages::TRIGGER_PING;
-       	packet.data[0] = configuration.pingCount++;
-
-        cm->SendMessageToReceiver(NULL, (u8*)&packet, SIZEOF_CONN_PACKET_MODULE + 1, true);
-	return(true);
 }
 
 bool PingModule::TerminalCommandHandler(string commandName, vector<string> commandArgs)
@@ -124,11 +84,27 @@ bool PingModule::TerminalCommandHandler(string commandName, vector<string> comma
 	{
 		//React on commands, return true if handled, false otherwise
 		if(commandName == "pingmod"){
+			//Get the id of the target node
 			nodeID targetNodeId = atoi(commandArgs[0].c_str());
+			logt("PINGMOD", "Trying to ping node %u", targetNodeId);
 
-			return(SendPing(targetNodeId));
+			//Send ping packet to that node
+			connPacketModule packet;
+			packet.header.messageType = MESSAGE_TYPE_MODULE_TRIGGER_ACTION;
+			packet.header.sender = node->persistentConfig.nodeId;
+			packet.header.receiver = targetNodeId;
+
+			packet.moduleId = moduleId;
+			packet.actionType = PingModuleTriggerActionMessages::TRIGGER_PING;
+			packet.data[0] = 123;
+
+
+			cm->SendMessageToReceiver(NULL, (u8*)&packet, SIZEOF_CONN_PACKET_HEADER + 1, true);
+
+			return true;
 		}
 	}
+
 
 	//Must be called to allow the module to get and set the config
 	return Module::TerminalCommandHandler(commandName, commandArgs);
@@ -139,86 +115,47 @@ void PingModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket
 	//Must call superclass for handling
 	Module::ConnectionPacketReceivedEventHandler(inPacket, connection, packetHeader, dataLength);
 
-    connPacketModule* packet = (connPacketModule*) packetHeader;
+	//Filter trigger_action messages
+	if(packetHeader->messageType == MESSAGE_TYPE_MODULE_TRIGGER_ACTION){
+		connPacketModule* packet = (connPacketModule*)packetHeader;
 
-    switch(packetHeader->messageType)
-    {
-        case MESSAGE_TYPE_MODULE_TRIGGER_ACTION:
-            //Check if our module is meant and we should trigger an action
-            if(packet->moduleId == moduleId)
-            {
-                switch(packet->actionType)
-                {
-                    case PingModuleTriggerActionMessages::TRIGGER_PING:
-                        // logt("PINGMOD", "Ping request received from %u with data: %d", packetHeader->sender, packet->data[0]);
+		//Check if our module is meant and we should trigger an action
+		if(packet->moduleId == moduleId){
+			//It's a ping message
+			if(packet->actionType == PingModuleTriggerActionMessages::TRIGGER_PING){
 
-                        //Send PING_RESPONSE
-                        connPacketModule outPacket;
-                        outPacket.header.messageType = MESSAGE_TYPE_MODULE_ACTION_RESPONSE;
-                        outPacket.header.sender = node->persistentConfig.nodeId;
-                        outPacket.header.receiver = packetHeader->sender;
+				//Inform the user
+				logt("PINGMOD", "Ping request received with data: %d", packet->data[0]);
 
-                        outPacket.moduleId = moduleId;
-                        outPacket.actionType = PingModuleActionResponseMessages::PING_RESPONSE;
-                        outPacket.data[0] = packet->data[0];
-                        outPacket.data[1] = packet->data[0];
+				//Send PING_RESPONSE
+				connPacketModule outPacket;
+				outPacket.header.messageType = MESSAGE_TYPE_MODULE_ACTION_RESPONSE;
+				outPacket.header.sender = node->persistentConfig.nodeId;
+				outPacket.header.receiver = packetHeader->sender;
 
-                        cm->SendMessageToReceiver(NULL, (u8*)&outPacket, SIZEOF_CONN_PACKET_MODULE + 2, true);
+				outPacket.moduleId = moduleId;
+				outPacket.actionType = PingModuleActionResponseMessages::PING_RESPONSE;
+				outPacket.data[0] = packet->data[0];
+				outPacket.data[1] = 111;
 
-                        {
-	                        int a = cm->connections[0]->GetAverageRSSI();
-	                        int b = cm->connections[1]->GetAverageRSSI();
-	                        int c = cm->connections[2]->GetAverageRSSI();
-	                        int d = cm->connections[3]->GetAverageRSSI();
-				int sum = -(a+b+c+d);
+				cm->SendMessageToReceiver(NULL, (u8*)&outPacket, SIZEOF_CONN_PACKET_HEADER + 2, true);
 
-                                if(sum == 0)
-                                {
-                                        nrf_gpio_pin_write(kPinNumberRed, 0);
-                                        nrf_gpio_pin_write(kPinNumberGreen, 0);
-                                        nrf_gpio_pin_write(kPinNumberBlue, 0);
-                                } else
-				if(sum >= 80) {
-                                        nrf_gpio_pin_write(kPinNumberRed, 255);
-                                        nrf_gpio_pin_write(kPinNumberGreen, 0);
-                                        nrf_gpio_pin_write(kPinNumberBlue, 0);
-                                } else
-				if (sum >= 70) {
-	                                nrf_gpio_pin_write(kPinNumberRed, 153);
-        	                        nrf_gpio_pin_write(kPinNumberGreen, 76);
-                	                nrf_gpio_pin_write(kPinNumberBlue, 0);
-				} else {					
-					nrf_gpio_pin_write(kPinNumberRed, 0);
-                                        nrf_gpio_pin_write(kPinNumberGreen, 255);
-                                        nrf_gpio_pin_write(kPinNumberBlue, 0);
-				}
-			
-                        	//logt("PINGMOD", "RSSI: [%d] [%d] [%d] [%d] Sum: %d", a, b, c, d, sum);
-                        }
-                        break;
+			}
+		}
+	}
 
-                     default:
-                         logt("PINGMOD", "PingModuleTriggerActionMessages::TRIGGER_PING: Unknown action: %d", packet->actionType);
-                         break;
-                }
-            }
-            break;
+	//Parse Module action_response messages
+	if(packetHeader->messageType == MESSAGE_TYPE_MODULE_ACTION_RESPONSE){
 
-        case MESSAGE_TYPE_MODULE_ACTION_RESPONSE:
-            //Check if our module is meant and we should trigger an action
-            if(packet->moduleId == moduleId)
-            {
-                switch(packet->actionType)
-                {
-                    case PingModuleActionResponseMessages::PING_RESPONSE:
-                        break;
+		connPacketModule* packet = (connPacketModule*)packetHeader;
 
-                     default:
-                         logt("PINGMOD", "MESSAGE_TYPE_MODULE_ACTION_RESPONSE: Unknown action: %d", packet->actionType);
-                         break;
-                }
-            }
-            break;
-    }
+		//Check if our module is meant and we should trigger an action
+		if(packet->moduleId == moduleId)
+		{
+			//Somebody reported its connections back
+			if(packet->actionType == PingModuleActionResponseMessages::PING_RESPONSE){
+				logt("PINGMOD", "Ping came back from %u with data %d, %d", packet->header.sender, packet->data[0], packet->data[1]);
+			}
+		}
+	}
 }
-
