@@ -105,7 +105,7 @@ bool PingModule::SendPing(nodeID targetNodeId)
 	// logt("PINGMOD", "Trying to ping node %u from %u", targetNodeId, node->persistentConfig.nodeId);
 
         //Send ping packet to that node
-        connPacketModuleAction packet;
+        connPacketModule packet;
         packet.header.messageType = MESSAGE_TYPE_MODULE_TRIGGER_ACTION;
         packet.header.sender = node->persistentConfig.nodeId;
         packet.header.receiver = targetNodeId;
@@ -114,7 +114,7 @@ bool PingModule::SendPing(nodeID targetNodeId)
         packet.actionType = PingModuleTriggerActionMessages::TRIGGER_PING;
        	packet.data[0] = configuration.pingCount++;
 
-        cm->SendMessageToReceiver(NULL, (u8*)&packet, SIZEOF_CONN_PACKET_MODULE_ACTION + 1, true);
+        cm->SendMessageToReceiver(NULL, (u8*)&packet, SIZEOF_CONN_PACKET_MODULE + 1, true);
 	return(true);
 }
 
@@ -139,7 +139,7 @@ void PingModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket
 	//Must call superclass for handling
 	Module::ConnectionPacketReceivedEventHandler(inPacket, connection, packetHeader, dataLength);
 
-    connPacketModuleAction* packet = (connPacketModuleAction*) packetHeader;
+    connPacketModule* packet = (connPacketModule*) packetHeader;
 
     switch(packetHeader->messageType)
     {
@@ -153,7 +153,7 @@ void PingModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket
                         // logt("PINGMOD", "Ping request received from %u with data: %d", packetHeader->sender, packet->data[0]);
 
                         //Send PING_RESPONSE
-                        connPacketModuleAction outPacket;
+                        connPacketModule outPacket;
                         outPacket.header.messageType = MESSAGE_TYPE_MODULE_ACTION_RESPONSE;
                         outPacket.header.sender = node->persistentConfig.nodeId;
                         outPacket.header.receiver = packetHeader->sender;
@@ -163,7 +163,7 @@ void PingModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket
                         outPacket.data[0] = packet->data[0];
                         outPacket.data[1] = packet->data[0];
 
-                        cm->SendMessageToReceiver(NULL, (u8*)&outPacket, SIZEOF_CONN_PACKET_MODULE_ACTION + 2, true);
+                        cm->SendMessageToReceiver(NULL, (u8*)&outPacket, SIZEOF_CONN_PACKET_MODULE + 2, true);
 
                         {
 	                        int a = cm->connections[0]->GetAverageRSSI();
